@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KishBlue — Kish Island Real Estate Guide</title>
+    <!-- Leaflet.js Interactive Map Library (Free, No API Key Required) -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- AIRBNB-INSPIRED TOP NAVIGATION -->
+    <header class="main-header">
+        <div class="header-top">
+            <!-- 1. Brand Logo -->
+            <a href="#" class="brand-logo">
+                <svg width="34" height="34" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect width="36" height="36" rx="10" fill="#0284c7"/>
+                    <path d="M8 23C11.5 20 14.5 20 18 23C21.5 26 24.5 26 28 23" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+                    <path d="M8 27.5C11.5 24.5 14.5 24.5 18 27.5C21.5 30.5 24.5 30.5 28 27.5" stroke="#bae6fd" stroke-width="2" stroke-linecap="round"/>
+                    <path d="M18 8L25 14V19H11V14L18 8Z" fill="white"/>
+                </svg>
+                <div class="logo-text">
+                    <span class="logo-title">KishBlue</span>
+                    <span class="logo-subtitle">Island Real Estate</span>
+                </div>
+            </a>
+
+            <!-- 2. Buy vs. Rent Mode Tabs -->
+            <nav class="listing-mode-tabs">
+                <button class="mode-tab active" data-mode="buy" onclick="switchMode('buy')">Buy Property</button>
+                <button class="mode-tab" data-mode="rent" onclick="switchMode('rent')">Rent <span class="soon-pill">Beta</span></button>
+            </nav>
+
+            <!-- 3. Login / User Access Pill -->
+            <div class="header-actions">
+                <span class="currency-pill">IRT (Toman)</span>
+                <button id="login-toggle-btn" class="user-profile-pill" onclick="toggleUserLogin()">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="3" y1="12" x2="21" y2="12"></line>
+                        <line x1="3" y1="6" x2="21" y2="6"></line>
+                        <line x1="3" y1="18" x2="21" y2="18"></line>
+                    </svg>
+                    <div class="avatar-circle" id="user-avatar">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 12c2.7 0 5-2.3 5-5s-2.3-5-5-5-5 2.3-5 5 2.3 5 5 5zm0 2c-3.3 0-10 1.7-10 5v3h20v-3c0-3.3-6.7-5-10-5z"/>
+                        </svg>
+                    </div>
+                    <span id="login-status-text">Log in</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- FLOATING PILL SEARCH BAR -->
+        <div class="search-pill-wrapper">
+            <div class="search-pill">
+                <div class="search-segment">
+                    <label for="neighborhood">Location / Phase</label>
+                    <select id="neighborhood" onchange="handleSearch()">
+                        <option value="">All Kish Island (25 Phases)</option>
+                        <optgroup label="Entire Macro-Districts">
+                            <option value="MACRO:Sadaf">All Shahrak-e Sadaf (Phases 1–7)</option>
+                            <option value="MACRO:Nobonyad">All Shahrak-e Nobonyad (Phases 1–3)</option>
+                            <option value="MACRO:Mirmohanna">All Mirmohanna & Safin (A, F, G)</option>
+                            <option value="MACRO:Damoon">All Damoon (Saheli & Kish Air)</option>
+                            <option value="MACRO:City Center">All City Center & Pardis</option>
+                            <option value="MACRO:Coastal Strip">All Coastal Towers & Beachfront</option>
+                        </optgroup>
+                        <optgroup label="Sadaf (شهرک صدف)">
+                            <option value="N-SADAF-01">Sadaf - Phase 1</option>
+                            <option value="N-SADAF-02">Sadaf - Phase 2</option>
+                            <option value="N-SADAF-03">Sadaf - Phase 3</option>
+                            <option value="N-SADAF-04">Sadaf - Phase 4</option>
+                            <option value="N-SADAF-05">Sadaf - Phase 5</option>
+                            <option value="N-SADAF-06">Sadaf - Phase 6</option>
+                            <option value="N-SADAF-07">Sadaf - Phase 7 (Sadaf-e Sahar)</option>
+                        </optgroup>
+                        <optgroup label="Nobonyad (شهرک نوبنیاد)">
+                            <option value="N-NOB-01">Nobonyad - Phase 1</option>
+                            <option value="N-NOB-02">Nobonyad - Phase 2</option>
+                            <option value="N-NOB-03">Nobonyad - Phase 3 (Kandovan / Arian)</option>
+                        </optgroup>
+                        <optgroup label="Mirmohanna & Safin (میرمهنا)">
+                            <option value="N-MIR-SAFIN">Old Safin & Phases B-E</option>
+                            <option value="N-MIR-A1">Mirmohanna - Phase A1</option>
+                            <option value="N-MIR-A2">Mirmohanna - Phase A2</option>
+                            <option value="N-MIR-A3">Mirmohanna - Phase A3</option>
+                            <option value="N-MIR-F1">Mirmohanna - Phase F1</option>
+                            <option value="N-MIR-F2">Mirmohanna - Phase F2 (200m Villas)</option>
+                            <option value="N-MIR-F3">Mirmohanna - Phase F3 (Luxury Villas)</option>
+                            <option value="N-MIR-G">Mirmohanna - Phase G</option>
+                        </optgroup>
+                        <optgroup label="Damoon, Center & Coast">
+                            <option value="N-DAMOON-01">Damoon Saheli 1 & 2</option>
+                            <option value="N-DAMOON-02">Damoon Kish Air</option>
+                            <option value="N-CENTER-PARDIS">City Center & Pardis</option>
+                            <option value="N-COAST-MARJAN">Marjan & Beachfront Towers</option>
+                            <option value="N-COAST-DIDANIHA">Shahrak-e Didaniha</option>
+                            <option value="N-COAST-AFTAB">Shahr-e Aftab</option>
+                            <option value="N-COAST-DEHKADEH">Dehkadeh Saheli</option>
+                        </optgroup>
+                    </select>
+                </div>
+
+                <div class="pill-divider"></div>
+
+                <div class="search-segment">
+                    <label for="property-type">Property Type</label>
+                    <select id="property-type" onchange="handleSearch()">
+                        <option value="">Any Type</option>
+                        <option value="1-Bedroom">1-Bedroom</option>
+                        <option value="2-Bedroom">2-Bedroom</option>
+                        <option value="3-Bedroom">3-Bedroom</option>
+                        <option value="Duplex / Penthouse">Duplex / Penthouse</option>
+                        <option value="Villa">Villa</option>
+                        <option value="Suite">Suite</option>
+                    </select>
+                </div>
+
+                <div class="pill-divider"></div>
+
+                <div class="search-segment budget-segment">
+                    <label for="max-budget">Max Budget (Toman)</label>
+                    <input type="number" id="max-budget" placeholder="e.g. 30000000000">
+                </div>
+
+                <button class="search-btn" aria-label="Search">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                    <span>Search</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- AIRBNB-STYLE QUICK FILTER CHIPS + LEFT CLEAR FILTERS BUTTON -->
+        <div class="quick-filters-bar">
+            <button id="clear-filters-btn" class="clear-filters-btn" onclick="clearAllFilters()" title="Reset all filters and map zoom">
+                ✕ Clear Filters
+            </button>
+            <div class="chips-divider"></div>
+            <button class="filter-chip active" data-chip="all" onclick="setQuickChip('all')">All Homes</button>
+            <button class="filter-chip" data-chip="sea_view" onclick="setQuickChip('sea_view')">🌊 Sea View</button>
+            <button class="filter-chip" data-chip="tak_barg" onclick="setQuickChip('tak_barg')">📜 Sanad-e Tak-Barg</button>
+            <button class="filter-chip" data-chip="roobeh_nama" onclick="setQuickChip('roobeh_nama')">☀️ Roobeh-nama</button>
+            <button class="filter-chip" data-chip="luxury_amenities" onclick="setQuickChip('luxury_amenities')">🏊 Pool / Gym / Lobby</button>
+        </div>
+    </header>
+
+    <!-- SPLIT SCREEN CONTENT -->
+    <main class="content-container">
+        
+        <!-- Left: Scrollable Listings Grid -->
+        <section class="listings-panel">
+            <div class="listings-header">
+                <h2 id="listings-title">Available Properties in Kish</h2>
+                <span id="results-count" class="results-badge">Loading...</span>
+            </div>
+            
+            <!-- JS injects the 2-column Airbnb card grid here -->
+            <div id="cards-grid" class="cards-grid"></div>
+        </section>
+
+        <!-- Right: Sticky Interactive Map Panel -->
+        <!-- Right: Airbnb-Style Framed & Expandable Map Panel -->
+        <section class="map-panel" id="map-panel">
+            <div class="map-frame-card">
+                
+                <!-- Top-Left/Center Compact Mode & Legend Pill -->
+                <div class="map-overlay-controls">
+                    <div class="map-mode-toggle">
+                        <button id="map-mode-radar" class="map-mode-btn active" onclick="setMapMode('radar')">
+                            Budget Radar (25 Phases)
+                        </button>
+                        <button id="map-mode-live" class="map-mode-btn" onclick="setMapMode('live')">
+                            Live Listings Only
+                        </button>
+                    </div>
+                    <div class="map-legend">
+                        <span class="legend-item"><i class="dot dot-live"></i> Live Units</span>
+                        <span class="legend-item"><i class="dot dot-affordable"></i> In Budget</span>
+                        <span class="legend-item"><i class="dot dot-hover"></i> Card Hover</span>
+                        <span class="legend-item"><i class="dot dot-off"></i> Over Budget</span>
+                    </div>
+                    <p id="map-budget-summary" class="map-summary-line">Showing all 25 residential phases across Kish Island.</p>
+                </div>
+
+                <!-- Top-Right Airbnb Expand / Collapse Button (Opposite Arrows <-> Cross) -->
+                <button id="map-expand-btn" class="map-expand-btn" onclick="toggleMapExpand()" title="Expand map">
+                    <!-- Expand Icon (Two Opposite Diagonal Arrows) -->
+                    <svg id="icon-expand" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="15 3 21 3 21 9"></polyline>
+                        <polyline points="9 21 3 21 3 15"></polyline>
+                        <line x1="21" y1="3" x2="14" y2="10"></line>
+                        <line x1="3" y1="21" x2="10" y2="14"></line>
+                    </svg>
+                    <!-- Collapse Icon (Cross 'X', hidden by default) -->
+                    <svg id="icon-collapse" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="display:none;">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+
+                <!-- Interactive Polygon Calibration Toolbar (Hidden unless 'Calibrate Zones' is clicked) -->
+                <div id="calibration-toolbar" class="calibration-toolbar" style="display:none;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                        <strong>📐 Map Zone Calibrator</strong>
+                        <button onclick="toggleCalibrationMode()" style="border:none; background:none; cursor:pointer; font-weight:bold; color:#dc2626;">✕ Exit</button>
+                    </div>
+                    <p style="font-size:11px; color:#475569; margin-bottom:8px;">
+                        1. Pick a phase in the top Location dropdown.<br>
+                        2. Click corners directly on the street map to trace it.<br>
+                        3. Click "Save Zone" or "Copy All JSON".
+                    </p>
+                    <div style="display:flex; gap:6px;">
+                        <button onclick="undoCalibrationPoint()" class="calib-btn">Undo Point</button>
+                        <button onclick="clearCurrentCalibration()" class="calib-btn">Reset Zone</button>
+                        <button onclick="copyCalibratedJSON()" class="calib-btn primary">Copy JSON</button>
+                    </div>
+                </div>
+
+                <!-- Actual Leaflet Map Canvas -->
+                <div id="kish-map"></div>
+
+                <!-- Google / Airbnb Style Professional Bottom Utility Footer -->
+                <div class="map-footer-bar">
+                    <div class="map-footer-left">
+                        <span class="map-provider-badge">Map Data ©2026 OSM / KishBlue GIS</span>
+                    </div>
+                    <div class="map-footer-links">
+                        <button class="footer-link-btn" onclick="fitFullKishIsland()" title="Reset zoom to full island">🏝️ Fit Full Island</button>
+                        <span>•</span>
+                        <button class="footer-link-btn" onclick="showMapInfoPopup('shortcuts')">Keyboard shortcuts</button>
+                        <span>•</span>
+                        <button class="footer-link-btn" onclick="showMapInfoPopup('terms')">Terms</button>
+                        <span>•</span>
+                        <button class="footer-link-btn" onclick="showMapInfoPopup('report')">Report a map error</button>
+                        <span>•</span>
+                        <button class="footer-link-btn calibrate-link" onclick="toggleCalibrationMode()">📐 Calibrate Zones</button>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+    <!-- AIRBNB-STYLE PROPERTY DETAIL & LEAD CAPTURE MODAL -->
+    <div id="property-modal-overlay" class="modal-overlay" onclick="closePropertyModal(event)">
+        <div class="modal-card" onclick="event.stopPropagation()">
+            <button class="modal-close-btn" onclick="closePropertyModal()">✕</button>
+            <div id="modal-body-content">
+                <!-- Populated dynamically by script.js -->
+            </div>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
